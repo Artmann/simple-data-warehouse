@@ -1,0 +1,31 @@
+services:
+  etl:
+    build: .
+    env_file: .env
+    depends_on:
+      - postgres
+    profiles:
+      - run
+
+  scheduler:
+    build: .
+    command: bun run src/scheduler.ts
+    env_file: .env
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: devpassword
+      POSTGRES_DB: app
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./seed.sql:/docker-entrypoint-initdb.d/seed.sql
+    ports:
+      - '5432:5432'
+
+volumes:
+  pgdata:
