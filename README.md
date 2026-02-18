@@ -1,5 +1,7 @@
 # Simple Data Warehouse
 
+![Simple Data Warehouse](screenshot.png)
+
 A self-hosted ETL pipeline that extracts customer, order, and event data from
 Postgres and writes date-partitioned Parquet files to S3, queryable with DuckDB.
 
