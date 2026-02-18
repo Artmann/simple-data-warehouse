@@ -59,25 +59,26 @@ export async function runPipeline(): Promise<void> {
   try {
     const now = new Date()
 
-    const customersCount = await extractAndLoad(
-      extractCustomers,
-      'customers',
-      buildDatePath(bucket, 'customers', now)
-    )
+    const [customersCount, ordersCount, eventsCount] = await Promise.all([
+      extractAndLoad(
+        extractCustomers,
+        'customers',
+        buildDatePath(bucket, 'customers', now)
+      ),
+      extractAndLoad(
+        extractOrders,
+        'orders',
+        buildDatePath(bucket, 'orders', now)
+      ),
+      extractAndLoad(
+        extractEvents,
+        'events',
+        buildDatePath(bucket, 'events', now)
+      )
+    ])
+
     log.info(`Streamed ${customersCount} customers`)
-
-    const ordersCount = await extractAndLoad(
-      extractOrders,
-      'orders',
-      buildDatePath(bucket, 'orders', now)
-    )
     log.info(`Streamed ${ordersCount} orders`)
-
-    const eventsCount = await extractAndLoad(
-      extractEvents,
-      'events',
-      buildDatePath(bucket, 'events', now)
-    )
     log.info(`Streamed ${eventsCount} events`)
 
     const metadata: EtlMetadata = {

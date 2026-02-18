@@ -78,12 +78,12 @@ SELECT
   COALESCE(o.new_orders, 0) AS new_orders
 FROM (
   SELECT created_at::DATE AS day, count(*) AS new_customers
-  FROM read_parquet('s3://simple-data-warehouse/customers/**/*.parquet')
+  FROM read_parquet('s3://my-data-warehouse/customers/**/*.parquet')
   GROUP BY day
 ) c
 FULL OUTER JOIN (
   SELECT created_at::DATE AS day, count(*) AS new_orders
-  FROM read_parquet('s3://simple-data-warehouse/orders/**/*.parquet')
+  FROM read_parquet('s3://my-data-warehouse/orders/**/*.parquet')
   GROUP BY day
 ) o ON c.day = o.day
 ORDER BY day;

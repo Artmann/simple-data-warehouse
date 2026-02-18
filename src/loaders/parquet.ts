@@ -1,4 +1,4 @@
-import { DuckDBInstance } from '@duckdb/node-api'
+import { DuckDBInstance, DuckDBConnection } from '@duckdb/node-api'
 import dayjs from 'dayjs'
 import { createWriteStream } from 'node:fs'
 import { unlink } from 'node:fs/promises'
@@ -18,7 +18,7 @@ export function buildDatePath(
   return `s3://${bucket}/${table}/${d.format('YYYY')}/${d.format('MM')}/${d.format('DD')}.parquet`
 }
 
-async function configureS3(connection: any): Promise<void> {
+async function configureS3(connection: DuckDBConnection): Promise<void> {
   await connection.run('INSTALL httpfs; LOAD httpfs;')
   await connection.run(
     `SET s3_region='${process.env.S3_REGION ?? 'us-east-1'}';`
@@ -62,9 +62,10 @@ export async function writeParquet(
     await configureS3(connection)
 
     await connection.run(
-      `COPY (SELECT * FROM read_json_auto('${tmpPath}')) TO '${outputPath}' (FORMAT PARQUET, COMPRESSION ZSTD)`
+      `COPY (SELECT * FROM read_json_auto('${tmpPath}', ignore_errors=true)) TO '${outputPath}' (FORMAT PARQUET, COMPRESSION ZSTD)`
     )
   } finally {
+    await connection.close()
     await unlink(tmpPath).catch(() => {})
   }
 }
