@@ -66,7 +66,7 @@ SET s3_region = getenv('S3_REGION');
 SET s3_access_key_id = getenv('AWS_ACCESS_KEY_ID');
 SET s3_secret_access_key = getenv('AWS_SECRET_ACCESS_KEY');
 
-SELECT * FROM read_parquet('s3://my-data-warehouse/customers/**/*.parquet') LIMIT 10;
+SELECT * FROM read_parquet('s3://my-data-warehouse/customers/2026/02/18.parquet') LIMIT 10;
 ```
 
 ### New customers and orders per day
@@ -78,12 +78,12 @@ SELECT
   COALESCE(o.new_orders, 0) AS new_orders
 FROM (
   SELECT created_at::DATE AS day, count(*) AS new_customers
-  FROM read_parquet('s3://my-data-warehouse/customers/**/*.parquet')
+  FROM read_parquet('s3://my-data-warehouse/customers/2026/02/18.parquet')
   GROUP BY day
 ) c
 FULL OUTER JOIN (
   SELECT created_at::DATE AS day, count(*) AS new_orders
-  FROM read_parquet('s3://my-data-warehouse/orders/**/*.parquet')
+  FROM read_parquet('s3://my-data-warehouse/orders/2026/02/18.parquet')
   GROUP BY day
 ) o ON c.day = o.day
 ORDER BY day;
