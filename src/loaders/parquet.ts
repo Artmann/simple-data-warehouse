@@ -65,7 +65,7 @@ export async function writeParquet(
       `COPY (SELECT * FROM read_json_auto('${tmpPath}', ignore_errors=true)) TO '${outputPath}' (FORMAT PARQUET, COMPRESSION ZSTD)`
     )
   } finally {
-    await connection.close()
+    connection.disconnectSync()
     await unlink(tmpPath).catch(() => {})
   }
 }
